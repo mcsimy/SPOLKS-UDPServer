@@ -499,7 +499,11 @@ int main(int argc, char* argv[])
 					sendto(serverSocket, buf, 1, 0, reinterpret_cast<SOCKADDR*>(&clientAddr), clientAddrSize);
 					break;
 				}
+				
+				// Достаем из буфера с какого блока клиенту нужны данные...
 				uint32_t lowerBound = *reinterpret_cast<uint32_t*>(&buf[3]);
+
+				// ...и по какой
 				uint32_t upperBound = *reinterpret_cast<uint32_t*>(&buf[7]);
 				wprintf(L"Запрос на получение блоков с %ld по %ld\n", lowerBound, upperBound);
 				for (uint32_t i = lowerBound; i<=upperBound; i++)
@@ -519,7 +523,11 @@ int main(int argc, char* argv[])
 					sendto(serverSocket, buf, 1, 0, reinterpret_cast<SOCKADDR*>(&clientAddr), clientAddrSize);
 					break;
 				}
+				
+				// Считаем количество блоков в запросе на основе длины полученной датаграммы
 				uint16_t blocksCountRequested = (bytes - 3) / 4;
+
+				// Сохраняем из буфера номера блоков в динамически создаваемый массив
 				uint32_t* blocksRequested = new uint32_t[blocksCountRequested];
 				for (uint16_t i=0; i<blocksCountRequested; i++)
 				{
@@ -530,6 +538,8 @@ int main(int argc, char* argv[])
 					wprintf(L"Запрос блока %lu\n", blocksRequested[i]);
 					SendBlock(blocksRequested[i], files[fileIdentifier]);
 				}
+
+				// Чистим кал
 				delete[] blocksRequested;
 				break;
 			}
